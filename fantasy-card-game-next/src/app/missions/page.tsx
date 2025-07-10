@@ -1,3 +1,6 @@
+// src/app/missions/page.tsx
+import MissionsScreen from "@/features/missions/MissionsScreen";
+
 export default function MissionsPage() {
-  return <div className="text-white p-8 text-center text-2xl">Missions Screen</div>;
+  return <MissionsScreen />;
 }

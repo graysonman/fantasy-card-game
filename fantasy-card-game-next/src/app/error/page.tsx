@@ -2,7 +2,7 @@ interface ErrorPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export default function ErrorPage({ searchParams }: ErrorPageProps) {
+export default async function ErrorPage({ searchParams }: ErrorPageProps) {
   const error =
     typeof searchParams.error === "string"
       ? searchParams.error

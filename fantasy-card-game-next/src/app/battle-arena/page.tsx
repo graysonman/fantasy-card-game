@@ -21,22 +21,16 @@ const BattleHubPage = () => {
   const [initialized, setInitialized] = useState(false);
 
   const fetchOpponents = useCallback(async () => {
-    console.log('Starting to fetch opponents...');
     setLoading(true);
     setError(null);
     
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
-      console.log('User fetch complete', { user, userError });
-
       if (userError || !user) {
-        console.error('User error or no user:', { userError, user });
         router.push('/login');
         return;
       }
       setUser(user);
-
-      console.log('Calling get_opponents_with_cards with:', { userId: user.id });
       
       const { data: opponentsWithCards, error: opponentsError } = await supabase
         .rpc('get_opponents_with_cards', { 
@@ -44,35 +38,24 @@ const BattleHubPage = () => {
           limit_count: 3 
         });
       
-      console.log('RPC call complete', { 
-        opponentsError, 
-        opponentsCount: opponentsWithCards?.length 
-      });
-
       if (opponentsError) {
-        console.error('Error fetching opponents:', opponentsError);
         throw opponentsError;
       }
       
       if (!opponentsWithCards || opponentsWithCards.length === 0) {
-        console.log('No opponents found with cards');
         setError('No opponents available. Try again later.');
         return;
       }
       
-      console.log('Setting opponents:', opponentsWithCards);
       setOpponents(opponentsWithCards);
     } catch (err: any) {
-      console.error('Error in fetchOpponents:', err);
       setError(err.message || 'Failed to load opponents. Please try again.');
     } finally {
-      console.log('Finished loading opponents');
       setLoading(false);
     }
   }, [router]);
 
   useEffect(() => {
-    // Only run once when component mounts
     if (!initialized) {
       setInitialized(true);
       fetchOpponents();
@@ -105,7 +88,7 @@ const BattleHubPage = () => {
   }
 
   return (
-    <div className="min-h-screen p-4 text-white bg-gray-900">
+    <div className="min-h-screen p-4 text-white">
       <div className="max-w-4xl mx-auto">
         <div className="bg-gray-800 p-6 rounded-lg">
           <h1 className="text-3xl font-bold mb-8 text-center">Battle Arena</h1>
@@ -130,7 +113,6 @@ const BattleHubPage = () => {
                 >
                   <h3 className="text-xl font-semibold">{opponent.username}</h3>
                   <p className="text-gray-200">Level {opponent.level}</p>
-                  <p className="text-sm text-gray-300 mt-2">{opponent.cardCount} cards</p>
                 </div>
               ))}
             </div>
