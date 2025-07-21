@@ -36,7 +36,7 @@ const Navbar = () => {
       <div className="flex flex-1 justify-around items-center">
         <Link href="/" className="hover:text-white font-bold px-4 border-l border-blue-700 first:border-none">HOME</Link>
         <Link href="/mypage" className="hover:text-white font-bold px-4 border-l border-blue-700">MY PAGE</Link>
-        <Link href="/cardpack" className="hover:text-white font-bold px-4 border-l border-blue-700">STORE</Link>
+        <Link href="/store" className="hover:text-white font-bold px-4 border-l border-blue-700">STORE</Link>
       </div>
       {loggedIn && (
         <button
