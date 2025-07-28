@@ -19,6 +19,7 @@ export type PlayerCard = {
     type: string;
     base_attack: number;
     base_defense: number;
+    fuseable: boolean;
   } | null;
 };
 

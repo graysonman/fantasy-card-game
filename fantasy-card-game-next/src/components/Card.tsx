@@ -1,11 +1,13 @@
 import React from "react";
 import Image from "next/image";
 import type { PlayerCard } from "@/app/collection/page";
+import { Card as StoreCard } from "@/models/Card";
 import { StrengthIcon, FinesseIcon, SpeedIcon, StarIcon } from "./Icons";
 
 interface CardProps {
-  card: PlayerCard;
+  card: PlayerCard | StoreCard;
   className?: string;
+  displayMode?: 'full' | 'simple';
 }
 
 // --- Sub-components ---
@@ -81,13 +83,56 @@ const StarRating: React.FC<{ rarity: string }> = ({ rarity }) => {
 };
 
 // --- Main Card Component ---
-const Card: React.FC<CardProps> = ({ card, className = "" }) => {
-  if (!card.cards) {
+const Card: React.FC<CardProps> = ({ card, className = "", displayMode = 'full' }) => {
+  const isPlayerCard = 'cards' in card && card.cards !== null;
+
+  const isPlayerCardType = (c: PlayerCard | StoreCard): c is PlayerCard => {
+    return 'cards' in c && c.cards !== null;
+  };
+
+  let cardDetails: {
+    name: string;
+    description: string;
+    rarity: string;
+    type: string;
+    image_url?: string;
+    base_attack?: number;
+    base_defense?: number;
+    fuseable?: boolean;
+  };
+
+  if (isPlayerCardType(card)) {
+    // It's a PlayerCard
+    if (!card.cards) return null;
+    cardDetails = {
+      ...card.cards,
+      type: card.cards.type,
+      base_attack: card.cards.base_attack,
+      base_defense: card.cards.base_defense
+    };
+  } else {
+    // It's a StoreCard
+    cardDetails = {
+      ...card,
+      type: card.type,
+      base_attack: card.attack,
+      base_defense: card.defense
+    };
+  }
+  if (!cardDetails) {
     return null;
   }
 
-  const { name, image_url, rarity, type, description: lore } = card.cards;
-  const { level, current_attack, current_defense } = card;
+  const { name, rarity, description: lore } = cardDetails;
+  const image_url = cardDetails.image_url;
+  const type = isPlayerCard ? cardDetails.type : (cardDetails as StoreCard).type;
+  
+  const level = isPlayerCard ? (card as PlayerCard).level : 1;
+  const current_attack = isPlayerCard ? (card as PlayerCard).current_attack : (card as StoreCard).attack;
+  const current_defense = isPlayerCard ? (card as PlayerCard).current_defense : (card as StoreCard).defense;
+  const base_attack = isPlayerCard ? cardDetails.base_attack : (card as StoreCard).attack;
+  const base_defense = isPlayerCard ? cardDetails.base_defense : (card as StoreCard).defense;
+
 
   const borderClass =
     rarity === "Common"
@@ -126,17 +171,19 @@ const Card: React.FC<CardProps> = ({ card, className = "" }) => {
         )}
         
         {/* Card Header */}
-        <div className="absolute top-[clamp(0.25rem,1vw,0.5rem)] left-0 right-0 w-full flex justify-between items-center px-[clamp(0.25rem,1vw,0.5rem)] z-50">
-          {/* Type Icon - pushed to left */}
-          <div className="absolute top-2 left-2 z-50">
-            <TypeDisplay type={type} />
+        {displayMode === 'full' && (
+          <div className="absolute top-[clamp(0.25rem,1vw,0.5rem)] left-0 right-0 w-full flex justify-between items-center px-[clamp(0.25rem,1vw,0.5rem)] z-50">
+            {/* Type Icon - pushed to left */}
+            <div className="absolute top-2 left-2 z-50">
+              <TypeDisplay type={type} />
+            </div>
+    
+            {/* Stars - pushed to right */}
+            <div className="absolute top-2 right-2 z-50">
+              <StarRating rarity={rarity} />
+            </div>
           </div>
-  
-          {/* Stars - pushed to right */}
-          <div className="absolute top-2 right-2 z-50">
-            <StarRating rarity={rarity} />
-          </div>
-        </div>
+        )}
 
         {/* Lore on Hover */}
         <div className="absolute inset-0 bg-black/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col items-center justify-center text-center overflow-auto">
@@ -157,10 +204,10 @@ const Card: React.FC<CardProps> = ({ card, className = "" }) => {
             Lv. {level}
           </span>
           <div className="text-white">
-            <span className="text-red-500 font-bold">{current_attack ?? card.cards.base_attack}</span> ATK
+            <span className="text-red-500 font-bold">{current_attack ?? base_attack}</span> ATK
           </div>
           <div className="text-white">
-            <span className="text-blue-500 font-bold">{current_defense ?? card.cards.base_defense}</span> DEF
+            <span className="text-blue-500 font-bold">{current_defense ?? base_defense}</span> DEF
           </div>
         </div>
       </div>
