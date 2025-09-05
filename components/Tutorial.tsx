@@ -29,7 +29,8 @@ const anatomyCard: PlayerCard = {
     rarity: 'Uncommon', 
     type: 'Strength', 
     base_attack: 43, 
-    base_defense: 57 
+    base_defense: 57,
+    fuseable: true
   } 
 };
 
@@ -47,7 +48,8 @@ const commonCard: PlayerCard = {
     rarity: 'Common', 
     type: 'Strength', 
     base_attack: 10, 
-    base_defense: 15 
+    base_defense: 15,
+    fuseable: true
   } 
 };
 
@@ -65,7 +67,8 @@ const legendaryCard: PlayerCard = {
     rarity: 'Legendary', 
     type: 'Strength', 
     base_attack: 120, 
-    base_defense: 80 
+    base_defense: 80,
+    fuseable: true
   } 
 };
 
@@ -191,4 +194,3 @@ const Tutorial: React.FC<TutorialProps> = ({ step, onNext, onBack, onComplete, i
 };
 
 export default Tutorial;
-

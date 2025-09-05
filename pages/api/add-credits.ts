@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createSupabaseServerClient } from '../../src/utils/supabaseServerClient';
+import { createPagesClient } from '../../utils/supabaseServer';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const supabase = createSupabaseServerClient(req, res);
+  const supabase = createPagesClient(req, res);
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     return res.status(401).json({ error: 'Unauthorized' });

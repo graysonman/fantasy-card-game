@@ -24,9 +24,6 @@ export const createClient = (request: NextRequest) => {
             name: 'sb-rixmpvjmukcotgcoiyji-auth-token',
             value,
             ...options,
-            path: '/',
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production',
           })
           response.cookies.set({
             name: 'sb-rixmpvjmukcotgcoiyji-auth-token',
@@ -40,20 +37,18 @@ export const createClient = (request: NextRequest) => {
         remove(name: string, options: CookieOptions) {
           // If the cookie is removed, update the cookies for the request and response
           request.cookies.set({
-            name: 'sb-rixmpvjmukcotgcoiyji-auth-token',
+            name,
             value: '',
             ...options,
-            path: '/',
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production',
           })
           response.cookies.set({
-            name: 'sb-rixmpvjmukcotgcoiyji-auth-token',
+            name,
             value: '',
             ...options,
             path: '/',
             sameSite: 'lax',
             secure: process.env.NODE_ENV === 'production',
+            maxAge: 0
           })
         },
       },

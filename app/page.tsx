@@ -110,14 +110,23 @@ export default function Home() {
             <p className="text-gray-300 mb-4">You have been awarded your first card:</p>
             <div className="flex justify-center">
               <Card card={{ 
-                id: 0, 
+                id: awardedCard.id, 
                 level: 1, 
                 xp: 0, 
                 in_deck: false, 
                 current_attack: awardedCard.base_attack,
                 current_defense: awardedCard.base_defense,
-                cards: awardedCard 
-              } as PlayerCard} />
+                cards: {
+                  name: awardedCard.name,
+                  description: awardedCard.description,
+                  image_url: awardedCard.image_url,
+                  rarity: awardedCard.rarity,
+                  type: awardedCard.type,
+                  base_attack: awardedCard.base_attack,
+                  base_defense: awardedCard.base_defense,
+                  fuseable: true
+                }
+              }} />
             </div>
           </div>
         ) : (
