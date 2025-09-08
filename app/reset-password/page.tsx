@@ -1,25 +1,30 @@
 // app/reset-password/page.tsx
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabaseClient';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
-function ResetPasswordFormComponent() {
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    const token = searchParams?.get('token');
-    if (!token) {
-      setErr("No reset token found. Please request another password reset.");
-    }
-  }, [searchParams]);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        // The user is in the password recovery flow.
+        // We don't need to do anything here as the form will handle the password update.
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,17 +38,6 @@ function ResetPasswordFormComponent() {
       return;
     }
 
-    const token = searchParams?.get('token');
-    if (!token) {
-        setErr("No reset token found. Please request another password reset.");
-        setLoading(false);
-        return;
-    }
-
-    // This part is a bit of a workaround because Supabase JS client v2
-    // doesn't have a direct method to sign in with a recovery token and then update password.
-    // The user is already in a 'recovery' state from the link.
-    // We just need to update the password.
     const { error } = await supabase.auth.updateUser({ password });
 
     setLoading(false);
@@ -87,13 +81,4 @@ function ResetPasswordFormComponent() {
       </div>
     </div>
   );
-}
-
-
-export default function ResetPasswordPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <ResetPasswordFormComponent />
-        </Suspense>
-    )
 }
