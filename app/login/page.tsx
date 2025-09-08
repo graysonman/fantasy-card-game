@@ -2,7 +2,9 @@
 
 import { login, signup } from './actions';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
+import Link from 'next/link';
+import { supabase } from '@/utils/supabaseClient';
 
 type AuthResult = {
   success: boolean;
@@ -16,6 +18,8 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(searchParams?.get('error') || null);
   const [signupSuccess, setSignupSuccess] = useState(searchParams?.get('signup') === 'success');
+
+  
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -133,6 +137,9 @@ export default function LoginPage() {
                 >
                   Create new account
                 </button>
+                <Link href="/forgot-password" className="group relative w-full flex justify-center py-2 px-4 border border-gray-600 text-sm font-medium rounded-md text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                  Forgot password?
+                </Link>
               </div>
             </form>
           )}

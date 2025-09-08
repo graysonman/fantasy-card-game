@@ -29,6 +29,15 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       setLoading(false);
     };
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get('code');
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).finally(() => {
+        // Clean the URL so we don't re-exchange on refresh/back
+        url.searchParams.delete('code');
+        window.history.replaceState({}, '', url.toString());
+      });
+    }
 
     getInitialSession();
 
@@ -44,6 +53,16 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
           router.push('/login');
         } else if (event === 'TOKEN_REFRESHED' && !session) {
           router.push('/login');
+        }
+        else if (event === 'PASSWORD_RECOVERY') {
+          const newPassword = prompt('What would you like your new password to be?');
+          if (!newPassword) return;
+          const { error } = await supabase.auth.updateUser({ password: newPassword });
+          if (error) alert('There was an error updating your password.');
+          else {
+            alert('Password updated successfully!');
+            router.push('/login?reset=success');
+          }
         }
       }
     );
