@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/Card';
@@ -13,6 +13,10 @@ type Profile = {
   credits: number;
 };
 
+const RARITIES = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
+const TYPES = ["Strength", "Finesse", "Speed"];
+
+
 export default function MyPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -23,7 +27,12 @@ export default function MyPage() {
   const [newUsername, setNewUsername] = useState('');
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [updateStatus, setUpdateStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
+  const [filters, setFilters] = useState({
+    name: '',
+    rarity: '',
+    type: '',
+    level: ''
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,7 +98,6 @@ export default function MyPage() {
             .eq('id', user.id);
 
         if (error) {
-            // This will catch unique constraint violations
             throw new Error(error.message.includes('duplicate key value') ? 'Username is already taken.' : error.message);
         }
 
@@ -101,7 +109,26 @@ export default function MyPage() {
     } finally {
         setLoading(false);
     }
-};
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  const filteredCards = useMemo(() => {
+    return cards.filter(playerCard => {
+      const card = playerCard.cards;
+      if (!card) return false;
+
+      const nameMatch = filters.name ? card.name.toLowerCase().includes(filters.name.toLowerCase()) : true;
+      const rarityMatch = filters.rarity ? card.rarity === filters.rarity : true;
+      const typeMatch = filters.type ? card.type === filters.type : true;
+      const levelMatch = filters.level ? playerCard.level >= parseInt(filters.level) : true;
+
+      return nameMatch && rarityMatch && typeMatch && levelMatch;
+    });
+  }, [cards, filters]);
 
 
   if (loading && !profile) {
@@ -173,9 +200,39 @@ export default function MyPage() {
 
           <main className="bg-gray-800/95 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-gray-700">
             <h2 className="text-3xl font-bold mb-6 text-center text-white">Your Collection</h2>
-            {cards.length > 0 ? (
+            <div className="mb-8 p-4 bg-gray-900/70 rounded-lg border border-gray-700">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Filter by name..."
+                        value={filters.name}
+                        onChange={handleFilterChange}
+                        className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400"
+                    />
+                    <select name="rarity" value={filters.rarity} onChange={handleFilterChange} className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white">
+                        <option value="">All Rarities</option>
+                        {RARITIES.map(r => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                    <select name="type" value={filters.type} onChange={handleFilterChange} className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white">
+                        <option value="">All Types</option>
+                        {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                    <input
+                        type="number"
+                        name="level"
+                        placeholder="Min level"
+                        value={filters.level}
+                        onChange={handleFilterChange}
+                        className="bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white placeholder-gray-400"
+                        min="1"
+                    />
+                </div>
+            </div>
+
+            {filteredCards.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                {cards.map((playerCard) => (
+                {filteredCards.map((playerCard) => (
                   <Link
                     key={playerCard.id}
                     href={`/mypage/upgrade/${playerCard.id}`}
@@ -187,13 +244,17 @@ export default function MyPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-xl text-gray-300 mb-6">Your collection is empty</p>
-                <Link
-                  href="/collection"
-                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all hover:shadow-lg hover:shadow-blue-500/20"
-                >
-                  Get Your First Card
-                </Link>
+                <p className="text-xl text-gray-300 mb-6">
+                    {cards.length > 0 ? "No cards match your filters." : "Your collection is empty"}
+                </p>
+                {cards.length === 0 && (
+                    <Link
+                    href="/collection"
+                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all hover:shadow-lg hover:shadow-blue-500/20"
+                    >
+                    Get Your First Card
+                    </Link>
+                )}
               </div>
             )}
           </main>
