@@ -20,6 +20,10 @@ export default function MyPage() {
   const [cards, setCards] = useState<PlayerCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newUsername, setNewUsername] = useState('');
+  const [isEditingUsername, setIsEditingUsername] = useState(false);
+  const [updateStatus, setUpdateStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,10 +53,10 @@ export default function MyPage() {
 
         if (profileResult.error) throw profileResult.error;
         setProfile(profileResult.data as Profile);
+        setNewUsername(profileResult.data.username || '');
 
         if (cardsResult.error) throw cardsResult.error;
         
-        // Transform the data to match the PlayerCard type
         const transformedCards = cardsResult.data.map((c: any) => ({
           ...c,
           cards: Array.isArray(c.cards) ? c.cards[0] : c.cards,
@@ -70,7 +74,37 @@ export default function MyPage() {
     fetchData();
   }, [router]);
 
-  if (loading) {
+  const handleUsernameUpdate = async () => {
+    if (!user || !newUsername.trim() || newUsername === profile?.username) {
+        setIsEditingUsername(false);
+        return;
+    }
+    setLoading(true);
+    setUpdateStatus(null);
+
+    try {
+        const { error } = await supabase
+            .from('profiles')
+            .update({ username: newUsername.trim() })
+            .eq('id', user.id);
+
+        if (error) {
+            // This will catch unique constraint violations
+            throw new Error(error.message.includes('duplicate key value') ? 'Username is already taken.' : error.message);
+        }
+
+        setProfile(prev => prev ? { ...prev, username: newUsername.trim() } : null);
+        setUpdateStatus({ message: 'Username updated successfully!', type: 'success' });
+        setIsEditingUsername(false);
+    } catch (err: any) {
+        setUpdateStatus({ message: err.message, type: 'error' });
+    } finally {
+        setLoading(false);
+    }
+};
+
+
+  if (loading && !profile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -86,8 +120,6 @@ export default function MyPage() {
   }
 
   if (!user || !profile) {
-    // This state can be hit briefly before the redirect.
-    // A loading indicator or null render is appropriate.
     return null;
   }
 
@@ -96,7 +128,39 @@ export default function MyPage() {
       <div className="min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <header className="bg-gray-800/95 backdrop-blur-sm rounded-xl p-6 mb-8 shadow-xl border border-gray-700">
-            <h1 className="text-4xl font-bold text-yellow-400 mb-2 text-center">{profile.username}</h1>
+            <div className="text-center">
+                {isEditingUsername ? (
+                    <div className="flex justify-center items-center gap-2">
+                        <input 
+                            type="text"
+                            value={newUsername}
+                            onChange={(e) => setNewUsername(e.target.value)}
+                            className="bg-gray-700 text-white text-4xl font-bold text-center rounded p-2"
+                            autoFocus
+                        />
+                        <button onClick={handleUsernameUpdate} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
+                            Save
+                        </button>
+                        <button onClick={() => setIsEditingUsername(false)} className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                            Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex justify-center items-center gap-4">
+                        <h1 className="text-4xl font-bold text-yellow-400">{profile.username}</h1>
+                        <button onClick={() => setIsEditingUsername(true)} className="text-yellow-400 hover:text-yellow-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L16.732 3.732z" />
+                            </svg>
+                        </button>
+                    </div>
+                )}
+                 {updateStatus && (
+                    <p className={`mt-4 text-sm ${updateStatus.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                        {updateStatus.message}
+                    </p>
+                )}
+            </div>
             <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mt-4 text-lg">
               <span className="bg-gray-700/80 px-4 py-2 rounded-lg">
                 Level: <span className="font-bold text-green-400">{profile.level || 1}</span>
