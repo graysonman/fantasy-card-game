@@ -116,6 +116,8 @@ export default function Home() {
                 in_deck: false, 
                 current_attack: awardedCard.base_attack,
                 current_defense: awardedCard.base_defense,
+                fused: false,
+                rarity: awardedCard.rarity,
                 cards: {
                   name: awardedCard.name,
                   description: awardedCard.description,

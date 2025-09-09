@@ -107,6 +107,7 @@ const Card: React.FC<CardProps> = ({ card, className = "", displayMode = 'full' 
     cardDetails = {
       ...card.cards,
       type: card.cards.type,
+      rarity: card.rarity ?? card.cards.rarity,
       base_attack: card.cards.base_attack,
       base_defense: card.cards.base_defense
     };

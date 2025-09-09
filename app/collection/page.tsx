@@ -11,6 +11,8 @@ export type PlayerCard = {
   in_deck: boolean;
   current_attack: number;
   current_defense: number;
+  fused: boolean;
+  rarity: string;
   cards: {
     name: string;
     description: string;

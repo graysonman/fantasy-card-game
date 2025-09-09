@@ -20,6 +20,8 @@ const anatomyCard: PlayerCard = {
   level: 5, 
   xp: 0, 
   in_deck: false,
+  fused: false,
+  rarity: 'Uncommon',
   current_attack: 43,
   current_defense: 57,
   cards: { 
@@ -39,6 +41,8 @@ const commonCard: PlayerCard = {
   level: 1, 
   xp: 0, 
   in_deck: false,
+  fused: false,
+  rarity: 'Common',
   current_attack: 10,
   current_defense: 15,
   cards: { 
@@ -56,8 +60,10 @@ const commonCard: PlayerCard = {
 const legendaryCard: PlayerCard = { 
   id: -3, 
   level: 50, 
-  xp: 0, 
+  xp: 0,  
   in_deck: false,
+  fused: false,
+  rarity: 'Legendary',
   current_attack: 120,
   current_defense: 80,
   cards: { 
