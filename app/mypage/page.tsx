@@ -151,7 +151,7 @@ export default function MyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url("/brick.svg")' }}>
+    <div className="min-h-screen bg-cover bg-center" style={{ backgroundImage: 'url("/brick.svg")' }}>
       <div className="min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <header className="bg-gray-800/95 backdrop-blur-sm rounded-xl p-6 mb-8 shadow-xl border border-gray-700">

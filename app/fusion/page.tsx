@@ -146,7 +146,7 @@ export default function FusionPage() {
     }
 
     return (
-        <div className="min-h-screen bg-cover bg-center bg-fixed p-4 sm:p-8" style={{ backgroundImage: 'url("/brick.svg")' }}>
+        <div className="min-h-screen bg-cover bg-center p-4 sm:p-8" style={{ backgroundImage: 'url("/brick.svg")' }}>
             <div className="max-w-7xl mx-auto">
                 <header className="bg-gray-800/95 backdrop-blur-sm rounded-xl p-6 mb-8 shadow-xl border border-gray-700 text-center">
                     <h1 className="text-4xl font-bold text-yellow-400">Card Fusion</h1>
