@@ -1,4 +1,4 @@
-// src/features/missions/MissionsScreen.tsx
+// features/missions/MissionsScreen.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
@@ -92,15 +92,12 @@ export default function MissionsScreen() {
     if (!canvas || !container) return;
     const width = containerWidth;
     if (!width || missions.length < 2) {
-      // clear
       const ctx0 = canvas.getContext("2d");
       if (ctx0) { ctx0.clearRect(0, 0, canvas.width, canvas.height); }
       return;
     }
 
     const totalHeight = missions.length * ROW_HEIGHT;
-
-    // HiDPI setup
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     canvas.style.width = `${width}px`;
     canvas.style.height = `${totalHeight}px`;
@@ -109,7 +106,7 @@ export default function MissionsScreen() {
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // scale for DPR
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     ctx.clearRect(0, 0, width, totalHeight);
     ctx.lineWidth = 2;
@@ -135,10 +132,8 @@ export default function MissionsScreen() {
     }
   }, [containerWidth, missions.length, getCenters]);
 
-  // redraw when data/size changes
   useEffect(() => {
     drawConnectors();
-    // also on resize (containerWidth effect triggers this)
   }, [drawConnectors]);
 
   const rowRenderer: ListRowRenderer = useCallback(({ index, key, style }) => {
@@ -176,7 +171,7 @@ export default function MissionsScreen() {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center" // avoid bg-fixed for perf
+      className="min-h-screen bg-cover bg-center" 
       style={{ backgroundImage: 'url("/brick.svg")' }}
     >
       <div className="min-h-screen text-white p-8">
@@ -207,7 +202,6 @@ export default function MissionsScreen() {
                     onScroll={onChildScroll}
                     scrollTop={scrollTop}
                     // When AutoSizer gives us width, update containerWidth so canvas redraws
-                    // (this is a safe place to sync it one more time)
                     onRowsRendered={() => {
                       if (containerWidth !== width) setContainerWidth(width);
                     }}
